@@ -19,7 +19,7 @@ import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 
 public class Stats {
-    public static final String HTTPS_API_CROSSOVER_COM_API_IDENTITY_USERS_CURRENT_DETAIL =
+    public static final String API_DETAILS =
             "https://api.crossover.com/api/identity/users/current/detail";
     public static final String AUTH = "Basic c2tvdF8wNkBiay5ydToxcWF6WkFRIQ==";
     public static final String API_WORKDIARIES = "https://api.crossover.com/api/timetracking/workdiaries?assignmentId=%s&date=%s&timeZoneId=%s";
@@ -36,14 +36,16 @@ public class Stats {
     }
 
     public static void main(String[] args) throws IOException {
-        JsonObject details = sendRequest(HTTPS_API_CROSSOVER_COM_API_IDENTITY_USERS_CURRENT_DETAIL, JsonObject.class);
+        JsonObject details = sendRequest(API_DETAILS, JsonObject.class);
         String assignmentId = details.get("assignment").getAsJsonObject().get("id").getAsString();
         String timezoneId = details.get("location").getAsJsonObject().get("timeZone").getAsJsonObject().get("id").getAsString();
         String date = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         JsonArray diaries = sendRequest(String.format(API_WORKDIARIES, assignmentId, date, timezoneId), JsonArray.class);
         List<String> intensityDropsDates = StreamSupport.stream(diaries.spliterator(), true)
                 .filter(el -> el.getAsJsonObject().get("intensityScore").getAsInt() < 75)
-                .map(el -> el.getAsJsonObject().get("date").getAsString())
+                .map(el -> el.getAsJsonObject().get("date").toString() + " -> " +
+                           el.getAsJsonObject().get("windowTitle").toString() + ", intensity: " +
+                           el.getAsJsonObject().get("intensityScore").toString())
                 .collect(Collectors.toList());
 
         System.out.println(intensityDropsDates);

@@ -9,8 +9,6 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
-import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -32,11 +30,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Main extends Application {
 
     private static final double OPACITY = .6;
+    public static final int ALERT_INTENSITY_THRESHOLD = 75;
+    public static final int MINUTES_STARTING_TO_ALERT = 8;
     private AtomicInteger keyCounter = new AtomicInteger(0);
+    private AtomicInteger mouseCounter = new AtomicInteger(0);
+    private AtomicInteger scrollCounter = new AtomicInteger(0);
     private static GlobalKeyboardHook keyboardHook = new GlobalKeyboardHook(false);
     private static GlobalMouseHook mouseHook = new GlobalMouseHook(false);
     private String MUSIC_FILE = "SynthChime1.mp3";
-    private AtomicInteger scrollCounter = new AtomicInteger(0);
 
     @Override
     public void start(Stage primaryStage) {
@@ -59,14 +60,14 @@ public class Main extends Application {
         mouseHook.addMouseListener(new GlobalMouseAdapter() {
             @Override
             public void mouseReleased(GlobalMouseEvent event) {
-                keyCounter.incrementAndGet();
+                mouseCounter.incrementAndGet();
             }
 
             @Override
             public void mouseWheel(GlobalMouseEvent event) {
                 scrollCounter.incrementAndGet();
                 if (scrollCounter.get() > 100) {
-                    keyCounter.incrementAndGet();
+                    scrollCounter.incrementAndGet();
                     scrollCounter.set(0);
                 }
             }
@@ -76,7 +77,8 @@ public class Main extends Application {
         barChart.setAnimated(true);
         barChart.setLegendVisible(false);
         XYChart.Series<String, Number> series1 = new XYChart.Series<>();
-        series1.getData().add(new XYChart.Data<>("", 0));
+        series1.getData().add(new XYChart.Data<>("key", 0));
+        series1.getData().add(new XYChart.Data<>("mouse", 0));
         barChart.getData().setAll(series1);
         Timeline tl = new Timeline();
         Media sound = new Media(new File(MUSIC_FILE).toURI().toString());
@@ -90,11 +92,16 @@ public class Main extends Application {
                                 System.out.println(now.toString() + " " + keyCounter);
                                 keyCounter.set(0);
                             }
-                            int currentIntensity = (keyCounter.get() * 100) / (300 + 50);
-                            if (currentIntensity < 75 && now.getMinute() % 10 >= 8 && now.getSecond() == 0) {
+                            int currentIntensity =
+                                    ((keyCounter.get() + mouseCounter.get() + scrollCounter.get()) * 100) / (300 + 50);
+                            if (currentIntensity < ALERT_INTENSITY_THRESHOLD && now.getMinute() % 10 >= MINUTES_STARTING_TO_ALERT && now.getSecond() == 0) {
                                 blink(primaryStage, mediaPlayer);
                             }
-                            data.setYValue(currentIntensity);
+                            if ("key".equals(data.getXValue())) {
+                                data.setYValue(keyCounter.get() * 100 / 300);
+                            } else {
+                                data.setYValue((mouseCounter.get() + scrollCounter.get()) * 100 / 50);
+                            }
                         }
                     }
                 }));
