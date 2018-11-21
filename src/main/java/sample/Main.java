@@ -87,6 +87,7 @@ public class Main extends Application {
                         for (XYChart.Data<String, Number> data : series.getData()) {
                             LocalDateTime now = LocalDateTime.now();
                             if (now.getMinute() % 10 == 0 && now.getSecond() == 0) {
+                                System.out.println(now.toString() + " " + keyCounter);
                                 keyCounter.set(0);
                             }
                             int currentIntensity = (keyCounter.get() * 100) / (300 + 50);
