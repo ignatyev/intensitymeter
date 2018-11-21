@@ -36,6 +36,7 @@ public class Main extends Application {
     private static GlobalKeyboardHook keyboardHook = new GlobalKeyboardHook(false);
     private static GlobalMouseHook mouseHook = new GlobalMouseHook(false);
     private String MUSIC_FILE = "SynthChime1.mp3";
+    private AtomicInteger scrollCounter = new AtomicInteger(0);
 
     @Override
     public void start(Stage primaryStage) {
@@ -63,9 +64,11 @@ public class Main extends Application {
 
             @Override
             public void mouseWheel(GlobalMouseEvent event) {
-                // TODO: 11/20/2018 support scrolls
-//                System.out.println(event);
-//                mouseCounter.incrementAndGet();
+                scrollCounter.incrementAndGet();
+                if (scrollCounter.get() > 100) {
+                    keyCounter.incrementAndGet();
+                    scrollCounter.set(0);
+                }
             }
         });
         root.add(barChart, 0, 0);
