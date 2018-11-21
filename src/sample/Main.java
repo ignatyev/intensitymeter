@@ -15,6 +15,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import lc.kra.system.keyboard.GlobalKeyboardHook;
 import lc.kra.system.keyboard.event.GlobalKeyAdapter;
@@ -25,15 +26,16 @@ import lc.kra.system.mouse.event.GlobalMouseEvent;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main extends Application {
 
+    private static final double OPACITY = .6;
     private AtomicInteger keyCounter = new AtomicInteger(0);
     private static GlobalKeyboardHook keyboardHook = new GlobalKeyboardHook(false);
     private static GlobalMouseHook mouseHook = new GlobalMouseHook(false);
     private String MUSIC_FILE = "SynthChime1.mp3";
-    private String PIC_FILE = "sprinter.jpg";
 
     @Override
     public void start(Stage primaryStage) {
@@ -45,8 +47,7 @@ public class Main extends Application {
 
         keyboardHook.addKeyListener(new GlobalKeyAdapter() {
             @Override
-            public void keyPressed(GlobalKeyEvent event) {
-                System.out.println(event);
+            public void keyReleased(GlobalKeyEvent event) {
                 keyCounter.incrementAndGet();
                /* if (event.getVirtualKeyCode() == GlobalKeyEvent.VK_ESCAPE) {
                     keyboardHook.shutdownHook();
@@ -56,8 +57,7 @@ public class Main extends Application {
         });
         mouseHook.addMouseListener(new GlobalMouseAdapter() {
             @Override
-            public void mousePressed(GlobalMouseEvent event) {
-                System.out.println(event);
+            public void mouseReleased(GlobalMouseEvent event) {
                 keyCounter.incrementAndGet();
             }
 
@@ -75,9 +75,7 @@ public class Main extends Application {
         XYChart.Series<String, Number> series1 = new XYChart.Series<>();
         series1.getData().add(new XYChart.Data<>("", 0));
         barChart.getData().setAll(series1);
-//                FXMLLoader.load(getClass().getResource("sample.fxml"));
         Timeline tl = new Timeline();
-//        Alert alert = new Alert(Alert.AlertType.WARNING, "Low intensity!");
         Media sound = new Media(new File(MUSIC_FILE).toURI().toString());
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
         tl.getKeyFrames().add(new KeyFrame(Duration.seconds(1),
@@ -90,8 +88,7 @@ public class Main extends Application {
                             }
                             int currentIntensity = (keyCounter.get() * 100) / (300 + 50);
                             if (currentIntensity < 75 && now.getMinute() % 10 >= 8 && now.getSecond() == 0) {
-//                                alert.show();
-                                mediaPlayer.play();
+                                blink(primaryStage, mediaPlayer);
                             }
                             data.setYValue(currentIntensity);
                         }
@@ -101,13 +98,29 @@ public class Main extends Application {
         tl.play();
 
         primaryStage.setTitle("Intensity Meter");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setScene(new Scene(root, 100, 275));
         primaryStage.setAlwaysOnTop(true);
-        primaryStage.setOpacity(.75);
+        primaryStage.setOpacity(OPACITY);
         primaryStage.setAlwaysOnTop(true);
+        primaryStage.initStyle(StageStyle.UTILITY);
+        primaryStage.setX(1833);
+        primaryStage.setY(352);
         primaryStage.show();
-        primaryStage.getIcons().add(new Image(new File(PIC_FILE).toURI().toString()));
+    }
 
+    private void blink(Stage stage, MediaPlayer mediaPlayer) {
+        mediaPlayer.play();
+        for (int ignored : Arrays.asList(1, 2, 3)) {
+            stage.setOpacity(1);
+            try {
+                Thread.sleep(800);
+                stage.setOpacity(OPACITY);
+                Thread.sleep(800);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        mediaPlayer.stop();
     }
 
 
