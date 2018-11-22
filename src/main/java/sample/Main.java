@@ -9,8 +9,6 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
-import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -32,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Main extends Application {
 
     private static final double OPACITY = .6;
+    public static final int INTENSITY_THRESHOLD = 75;
     private AtomicInteger keyCounter = new AtomicInteger(0);
     private static GlobalKeyboardHook keyboardHook = new GlobalKeyboardHook(false);
     private static GlobalMouseHook mouseHook = new GlobalMouseHook(false);
@@ -45,6 +44,7 @@ public class Main extends Application {
         BarChart<String, Number> barChart = new BarChart<>(
                 new CategoryAxis(),
                 new NumberAxis(0, 100, 1));
+        root.onMouseClickedProperty().setValue(event -> IntensityReportView.show());
 
         keyboardHook.addKeyListener(new GlobalKeyAdapter() {
             @Override
@@ -86,12 +86,13 @@ public class Main extends Application {
                     for (XYChart.Series<String, Number> series : barChart.getData()) {
                         for (XYChart.Data<String, Number> data : series.getData()) {
                             LocalDateTime now = LocalDateTime.now();
-                            if (now.getMinute() % 10 == 0 && now.getSecond() == 0) {
-                                System.out.println(now.toString() + " " + keyCounter);
-                                keyCounter.set(0);
-                            }
                             int currentIntensity = (keyCounter.get() * 100) / (300 + 50);
-                            if (currentIntensity < 75 && now.getMinute() % 10 >= 8 && now.getSecond() == 0) {
+                            if (now.getMinute() % 10 == 0 && now.getSecond() == 0) {
+                                System.out.println(now.toString() + " " + currentIntensity);
+                                keyCounter.set(0);
+                                currentIntensity = 0;
+                            }
+                            if (currentIntensity < INTENSITY_THRESHOLD && now.getMinute() % 10 >= 8 && now.getSecond() == 0) {
                                 blink(primaryStage, mediaPlayer);
                             }
                             data.setYValue(currentIntensity);
@@ -101,7 +102,7 @@ public class Main extends Application {
         tl.setCycleCount(Animation.INDEFINITE);
         tl.play();
 
-        primaryStage.setTitle("Intensity Meter");
+        primaryStage.setTitle("IntensityDrop Meter");
         primaryStage.setScene(new Scene(root, 100, 275));
         primaryStage.setAlwaysOnTop(true);
         primaryStage.setOpacity(OPACITY);
