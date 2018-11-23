@@ -21,7 +21,7 @@ import java.util.zip.GZIPInputStream;
 class Stats {
     private static final String API_USERS_CURRENT_DETAIL =
             "https://api.crossover.com/api/identity/users/current/detail";
-    private static final String AUTH = "";
+    private static final String AUTH = ""; //use login:password encoded in base64
     private static final String API_WORKDIARIES = "https://api.crossover.com/api/timetracking/workdiaries?assignmentId=%s&date=%s&timeZoneId=%s";
     private static HttpRequest request = new BasicHttpRequest();
     private static Gson gson = new Gson();
