@@ -66,7 +66,7 @@ public class Main extends Application {
         barChart.getData().setAll(series1);
         playTimeLine(primaryStage, barChart);
 
-        primaryStage.setTitle("Intensity Meter");
+        primaryStage.setTitle("IM");
         primaryStage.setScene(new Scene(root, 100, 275));
         primaryStage.setAlwaysOnTop(true);
         primaryStage.setOpacity(OPACITY);
