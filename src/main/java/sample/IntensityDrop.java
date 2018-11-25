@@ -7,7 +7,7 @@ public class IntensityDrop {
     private final SimpleStringProperty windowTitle;
     private final SimpleStringProperty intensityScore;
 
-    public IntensityDrop(String date, String windowTitle, String intensityScore) {
+    IntensityDrop(String date, String windowTitle, String intensityScore) {
         this.date = new SimpleStringProperty(date);
         this.windowTitle = new SimpleStringProperty(windowTitle);
         this.intensityScore = new SimpleStringProperty(intensityScore);

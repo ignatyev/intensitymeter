@@ -114,12 +114,13 @@ public class Main extends Application {
 
     private void blink(Stage stage, MediaPlayer mediaPlayer) {
         mediaPlayer.play();
+        int blinkTime = 800;
         for (int ignored : Arrays.asList(1, 2, 3)) {
             stage.setOpacity(1);
             try {
-                Thread.sleep(800);
+                Thread.sleep(blinkTime);
                 stage.setOpacity(OPACITY);
-                Thread.sleep(800);
+                Thread.sleep(blinkTime);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
